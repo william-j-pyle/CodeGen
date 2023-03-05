@@ -1,0 +1,13 @@
+component:
+  type: nspanel
+  name: nspanel-standard
+
+room: 
+  name: Master Bedroom
+
+device:
+  name: nspanel0004
+  description: ${cfg_room_name}
+
+esphome:
+  ota_password: NAMES_OTA

@@ -1,0 +1,66 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build ESPHome",
+            "type": "shell",
+            "dependsOn": ["Clean"],
+            "command": "./bin/nspanel.sh",
+            "args": ["build","esphome"],
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "Build Nextion",
+            "type": "shell",
+            "dependsOn": ["Clean"],
+            "command": "./bin/nspanel.sh",
+            "args": ["build","nextion"],
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "dependsOn": ["Clean"],
+            "command": "./bin/nspanel.sh",
+            "args": ["build","all"],
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "./bin/nspanel.sh",
+            "args": ["clean","all"],
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }    
+    }
+    ]
+}

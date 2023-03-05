@@ -1,0 +1,8 @@
+substitutions:
+  #Device Config
+  device_name: '$device_name'
+  device_name_lower: '$device_name_lower'
+  device_room: '$device_room'
+  #Secrets - Device Specific  
+  ota_password: '$ota_password'
+  #api_encryption_key: '$api_encryption_key'

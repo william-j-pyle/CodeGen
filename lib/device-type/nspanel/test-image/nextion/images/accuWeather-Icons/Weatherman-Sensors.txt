@@ -1,0 +1,72 @@
+Entity	State	Attributes
+
+sensor.weatherman_barometric_pressure
+		state: 1028	
+		state_class: measurement
+		unit_of_measurement: inHg
+		device_class: pressure
+		icon: mdi:gauge
+		friendly_name: weatherman_barometric_pressure
+sensor.weatherman_condition
+		state: Cloudy	
+		state_class: text
+		icon: mdi:eye
+		friendly_name: weatherman_condition
+		icon_index: 3
+		nspanel_icon_index: 53
+sensor.weatherman_condition_icon
+		state: 3	
+		state_class: none
+		friendly_name: weatherman_condition_icon
+		nspanel_icon: 53
+sensor.weatherman_feels_like
+		state: 26.64	
+		state_class: measurement
+		unit_of_measurement: °F
+		device_class: temperature
+		icon: mdi:thermometer
+		friendly_name: weatherman_feels_like
+		heat_index:
+		wind_chill:
+sensor.weatherman_forecast_high
+		state: 48	
+		state_class: measurement
+		unit_of_measurement: °F
+		device_class: temperature
+		icon: mdi:thermometer
+		friendly_name: weatherman_forecast_high
+sensor.weatherman_forecast_low
+		state: 31	
+		state_class: measurement
+		unit_of_measurement: °F
+		device_class: temperature
+		icon: mdi:thermometer-low
+		friendly_name: weatherman_forecast_low
+sensor.weatherman_precipitation_probability
+		state: 0	
+		state_class: measurement
+		unit_of_measurement: %
+		icon: mdi:water-percent
+		friendly_name: weatherman_precipitation_probability
+		precipitation_type: rain/snow/ice
+sensor.weatherman_relative_humidity
+		state: 89	
+		state_class: measurement
+		unit_of_measurement: %
+		device_class: humidity
+		icon: mdi:water-percent
+		friendly_name: weatherman_relative_humidity
+sensor.weatherman_temperature
+		state: 31	
+		state_class: measurement
+		unit_of_measurement: °F
+		device_class: temperature
+		icon: mdi:thermometer
+		friendly_name: weatherman_temperature
+sensor.weatherman_wind_speed
+		state: 2.24	
+		state_class: measurement
+		unit_of_measurement: mph
+		device_class: speed
+		icon: mdi:weather-windy
+		friendly_name: weatherman_wind_speed

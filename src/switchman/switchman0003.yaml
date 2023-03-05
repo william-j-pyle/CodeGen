@@ -1,0 +1,13 @@
+component:
+  type: switchman
+  name: switchman-standard
+
+room: 
+  name: Downstairs Side Hallway
+
+device:
+  name: switchman0003
+  description: ${cfg_room_name}
+
+esphome:
+  ota_password: NAMES_OTA

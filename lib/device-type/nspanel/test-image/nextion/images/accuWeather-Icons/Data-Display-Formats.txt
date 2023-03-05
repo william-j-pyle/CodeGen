@@ -1,0 +1,8 @@
+Element|Imperial|Metric
+Cloud Ceiling|######0|######0
+Hourly Precipitation|##0.00|###0
+Pressure|##0.00|#000.0
+Temperature|##0|##0.0
+Visibility|#0.0##|#0.0
+Wind Gust|##0.0|##0.0
+Wind Speed|##0.0|##0.0

@@ -1,0 +1,824 @@
+esphome:
+  name: $device_name_lower
+  comment: $device_room
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+  ap:
+    ssid: $device_name
+    password: !secret fallback_password
+
+#web_server:
+#  port: 80  
+
+ota:
+  password: $ota_password
+
+logger:
+  level: DEBUG
+  logs:
+    #api: ERROR
+    scheduler: ERROR
+    schedular: ERROR
+    api.connection: ERROR
+    #nextion: DEBUG
+    ntc: ERROR
+    ledc: ERROR
+
+uart:
+  id: nxtUart
+  tx_pin: 16
+  rx_pin: 17
+  baud_rate: 115200
+
+rtttl:
+  id: buzzer
+  output: rtttlOutput
+
+output:
+  - platform: ledc
+    id: rtttlOutput
+    pin:
+      number: 21
+
+globals:
+  - id: gbl_weather_state
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: gbl_background_index
+    type: int
+    restore_value: yes
+    initial_value: '0'
+  - id: gbl_secs
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: gbl_home_after
+    type: int
+    initial_value: $timer_home_after
+    restore_value: yes
+  - id: gbl_dim_after
+    type: int
+    initial_value: $timer_dim_after
+    restore_value: yes
+  - id: gbl_sleep_after
+    type: int
+    initial_value: $timer_sleep_after
+    restore_value: yes
+  - id: gbl_dim_enabled
+    type: boolean
+    initial_value: $timer_dim_enabled
+    restore_value: yes
+  - id: gbl_sleep_enabled
+    type: boolean
+    initial_value: $timer_sleep_enabled
+    restore_value: yes
+  - id: gbl_brightness_max
+    type: int
+    initial_value: $device_brightness_default
+    restore_value: yes
+  - id: gbl_brightness_dim
+    type: int
+    initial_value: $device_dim_default
+    restore_value: yes
+  - id: gbl_brightness_val
+    type: int
+    initial_value: $device_brightness_default
+    restore_value: no
+  - id: gbl_page
+    type: int
+    initial_value: $page_status
+    restore_value: no
+  - id: gbl_state
+    type: int
+    initial_value: '99'
+    restore_value: no
+
+display:
+  - platform: nextion
+    id: nxtDisplay
+    uart_id: nxtUart
+    tft_url: http://192.168.86.47:8123/local/nspanel/${nextion_file}.tft
+    brightness: 100%
+    # lambda: |-
+    #   id(nxtDisplay).set_component_text("${page_status_name}.status","Processing...");
+    #   id(nxtDisplay).set_component_text("${page_status_name}.yamlBuild","$device_build");
+    #   id(nxtDisplay).set_component_text("${page_status_name}.espVersion", id(version_esphome).state.c_str());
+    #   id(nxtDisplay).set_component_text("${page_status_name}.assignedRoom","${device_room}");
+    on_page:
+      then:
+        - rtttl.play: ${alert_4}
+        - lambda: |-
+           ESP_LOGD("JAZCO", "ON_PAGE(%d)", x); 
+            // switch (x) {
+            //   case 0x02: // wifi_qr_page
+            //     // Manually trigger update for controls on page 0x02 here
+            //     id(disp).set_component_text_printf("qr_wifi", "WIFI:T:nopass;S:%s;P:;;", wifi::global_wifi_component->get_ap().get_ssid().c_str());
+            //     break;
+            // }    
+    on_setup:
+      then:
+        - lambda: |-
+            ESP_LOGD("display", "on_setup(%s)", "begin"); 
+            id(gbl_state)=99;
+            id(set_state)->execute($state_connect);
+        - wait_until:
+            api.connected
+        - lambda: ESP_LOGD("display", "on_setup(%s)", "api.connected");                       
+        - wait_until: 
+            switch.is_on: device_ready
+        - lambda: |-
+            ESP_LOGD("display", "on_setup(%s)", "device_ready");                       
+            auto curr_weather = int(id(current_condition_icon).state);
+            id(nxtDisplay).send_command_printf("${page_main_name}.weather.pic=%i", curr_weather+4 );
+            id(nxtDisplay).set_component_text("${page_main_name}.weather_text",id(current_condition).state.c_str());
+            id(nxtDisplay).set_component_text_printf("${page_main_name}.temp", "%.0f", id(current_temperature).state);
+            id(nxtDisplay).send_command_printf("${page_main_name}.icon_top_01.pic=%i", int(id(alarm_state_icon).state) );
+            id(nxtDisplay).set_component_text_printf("${page_main_name}.temp_low", "%.0f", id(forecast_low).state);
+            id(nxtDisplay).set_component_text_printf("${page_main_name}.temp_high", "%.0f", id(forecast_high).state);
+
+            id(nxtDisplay).set_component_text("pickBackground.line1", "Default");
+            id(nxtDisplay).set_component_value("pickBackground.num1", 1);
+            id(nxtDisplay).set_component_text("pickBackground.line2", "Default - Eleanor");
+            id(nxtDisplay).set_component_value("pickBackground.num2", 179);
+            id(nxtDisplay).set_component_text("pickBackground.line3", "Craftroom - 1");
+            id(nxtDisplay).set_component_value("pickBackground.num3", 178);
+            id(nxtDisplay).set_component_text("pickBackground.line4", "Camo - 1");
+            id(nxtDisplay).set_component_value("pickBackground.num4", 175);
+            id(nxtDisplay).set_component_text("pickBackground.line5", "Camo - 2");
+            id(nxtDisplay).set_component_value("pickBackground.num5", 176);
+            id(nxtDisplay).set_component_text("pickBackground.line6", "Camo - 3");
+            id(nxtDisplay).set_component_value("pickBackground.num6", 177);           
+            //id(nxtDisplay).set_component_text_printf("${page_main_name}.humidity", "%.0f %s", id(current_humidity).state,"%");
+            id(update_time).execute();
+            id(sync_relay).execute();
+            id(update_wifi_status).execute();
+        - rtttl.play: ${alert_2}
+        - delay: 0.5s        
+        - lambda: id(set_state)->execute($state_awake);
+        - lambda: id(set_page)->execute($page_main);
+
+script:
+
+  - id: set_background
+    then:
+      - lambda: |-
+          ESP_LOGD("SET_BACKGROUND","INDEX=%d",id(gbl_background_index));                       
+          id(nxtDisplay).send_command_printf("${page_main_name}.background.val=%i", id(gbl_background_index) );
+          id(nxtDisplay).send_command_printf("page %i", ${page_main} );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.pic=%i", id(gbl_background_index) );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.date.picc=%i", id(gbl_background_index) );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.time.picc=%i", id(gbl_background_index) );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.weather_text.picc=%i", id(gbl_background_index) );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.temp.picc=%i", id(gbl_background_index) );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.temp_high.picc=%i", id(gbl_background_index) );
+          //id(nxtDisplay).send_command_printf("${page_main_name}.temp_low.picc=%i", id(gbl_background_index) );
+          id(trigger_activity).execute();
+
+  - id: trigger_pageswipe
+    parameters:
+      swipe: int
+    then:
+      - lambda: |-
+          switch(swipe) {
+            case 1:
+              //Swipe Top->Bottom
+              if(id(gbl_page)==1){
+                id(set_page)->execute(5);
+              }
+              break;
+            case 2:
+              //Swipe Left->Right
+              switch(id(gbl_page)){
+                case 1:
+                  id(set_page)->execute(3);
+                break;
+                case 3:
+                  id(set_page)->execute(4);
+                break;
+                case 4:
+                  id(set_page)->execute(1);
+                break;
+              }
+              break;
+            case 3:
+              //Swipe Right->Left
+              switch(id(gbl_page)){
+                case 1:
+                  id(set_page)->execute(4);
+                break;
+                case 3:
+                  id(set_page)->execute(1);
+                break;
+                case 4:
+                  id(set_page)->execute(3);
+                break;
+              }
+              break;
+            case 4:
+              //Swipe Bottom->Top
+              if(id(gbl_page)==5){
+                id(set_page)->execute(1);
+              }
+              break;
+          }
+
+  - id: set_state
+    parameters:
+      state: int
+    then:
+      - lambda: |-
+          if(id(gbl_state)!=state) {
+            ESP_LOGD("SET_STATE", "%d", state);
+            id(gbl_state)=state;
+            switch (state) {
+              case $state_connect: 
+                ESP_LOGD("STATE_CONNECT", "%d", state);
+                id(nxtDisplay).set_component_text("${page_status_name}.status","Connecting...");
+                id(nxtDisplay).set_component_text("${page_status_name}.yamlBuild","$device_build");
+                id(nxtDisplay).set_component_text("${page_status_name}.espVersion", id(version_esphome).state.c_str());
+                id(nxtDisplay).set_component_text("${page_status_name}.assignedRoom","${device_room}");
+                id(set_page)->execute(${page_status});
+                id(gbl_secs) = 0;
+                //id(nxtDisplay).send_command_printf("timer.en=%i", 1);
+                id(set_backlight)->execute(id(gbl_brightness_max));
+                break;
+              case $state_upgrade:
+                ESP_LOGD("STATE_UPGRADE", "%d", state);
+                id(nxtDisplay).set_component_text("${page_status_name}.status","Upgrading...");
+                id(nxtDisplay).set_component_text("${page_status_name}.yamlBuild","$device_build");
+                id(nxtDisplay).set_component_text("${page_status_name}.espVersion", id(version_esphome).state.c_str());
+                id(nxtDisplay).set_component_text("${page_status_name}.assignedRoom","${device_room}");
+                id(set_page)->execute(${page_status});
+                id(gbl_secs) = 0;
+                //id(nxtDisplay).send_command_printf("timer.en=%i", 1);
+                id(set_backlight)->execute(id(gbl_brightness_max));
+                break;
+              case $state_awake:
+                ESP_LOGD("STATE_AWAKE", "%d", state);
+                //id(sync_components).execute();
+                if(id(gbl_page)==$page_sleep) {
+                  id(set_page)->execute($page_main);
+                }
+                id(set_backlight)->execute(id(gbl_brightness_max));
+                id(gbl_secs) = 0;
+                break;
+              case $state_awake_dim:
+                ESP_LOGD("STATE_AWAKE_DIM", "%d", state);
+                id(set_backlight)->execute(id(gbl_brightness_dim));
+                break;
+              case $state_sleep:
+                ESP_LOGD("STATE_SLEEP", "%d", state);
+                id(set_page)->execute(${page_sleep});
+                id(set_backlight)->execute(0);
+                id(gbl_secs) = 0;
+                break;
+            }
+            id(nspanel_state).publish_state(state);            
+          }    
+
+  - id: set_backlight
+    parameters:
+      level: int
+    then:
+      - lambda: |-
+            id(nxtDisplay).send_command_printf("dim=%i", level);
+
+  - id: sync_relay
+    then:
+      - lambda: |-
+             id(nxtDisplay).set_component_value("${page_main_name}.relay_l", id(relay_1).state);
+             id(nxtDisplay).set_component_value("${page_main_name}.relay_r", id(relay_2).state);
+
+  - id: trigger_activity
+    then:
+      - lambda: |-
+            ESP_LOGD("TRIGGER_ACTIVITY", "%d", id(gbl_secs));
+            id(gbl_secs) = 0;
+            id(set_state)->execute($state_awake);
+
+  - id: set_page
+    parameters:
+       page: int
+    then:
+      - lambda: |-
+          if(id(gbl_page)!=page) {
+            ESP_LOGD("SET_PAGE", "%d", page);                       
+            id(gbl_page)=page;
+            id(nxtDisplay).send_command_printf("page %i", page);
+          }
+
+  - id: trigger_tft_upload
+    then:
+      - lambda: |-
+          id(set_state)->execute($state_upgrade);
+          id(nxtDisplay)->upload_tft();
+
+  - id: update_time
+    then:
+      - lambda: |-
+          auto time_text = id(homeassistant_time).now().strftime("%I:%M");
+          auto date_text = id(homeassistant_time).now().strftime("%B %d %Y");
+          id(nxtDisplay).set_component_text("${page_main_name}.time", time_text.c_str());
+          id(nxtDisplay).set_component_text("${page_main_name}.date", date_text.c_str());
+
+  - id: update_wifi_status
+    then:
+      # RSSI is negative
+      #  -0 - -50 => excellent
+      # -50 - -60 => good     
+      # -60 - -70 => fair     
+      # -70 - -85 => weak     
+      # -85 - -90 => offline  
+      - lambda: |-
+          if (id(wifi_rssi).state >= -50)  {id(nxtDisplay).set_component_pic("icon_top_04", 29);}
+          if ((id(wifi_rssi).state < -50) && (id(wifi_rssi).state >= -60)) {id(nxtDisplay).set_component_pic("icon_top_04", 28);}
+          if ((id(wifi_rssi).state < -60) && (id(wifi_rssi).state >= -70)) {id(nxtDisplay).set_component_pic("icon_top_04", 27);}
+          if ((id(wifi_rssi).state < -70) && (id(wifi_rssi).state >= -85)) {id(nxtDisplay).set_component_pic("icon_top_04", 26);}
+          if (id(wifi_rssi).state < -85) {id(nxtDisplay).set_component_pic("icon_top_04", 25);}
+
+interval:
+  - interval: 1s
+    then:
+      - if:
+          condition:
+            switch.is_on: device_ready
+          then:
+            - lambda: |-
+                if (id(gbl_secs) <= id(gbl_sleep_after)) {
+                  id(gbl_secs) +=1;
+                  if((id(gbl_page)!=${page_sleep}) && (id(gbl_page)!=${page_main}) && (id(gbl_secs)>id(gbl_home_after)) ) {
+                    id(set_page)->execute($page_main);
+                  }
+                  if((id(gbl_page)!=${page_sleep}) && (id(gbl_dim_enabled)==true) && (id(gbl_state)!=${state_awake_dim}) && (id(gbl_secs)>id(gbl_dim_after)) ) {
+                    id(set_state)->execute($state_awake_dim);
+                  }
+                  if((id(gbl_page)!=${page_sleep}) && (id(gbl_sleep_enabled)==true) && (id(gbl_secs)>id(gbl_sleep_after)) ) {
+                    id(set_state)->execute($state_sleep);
+                  }
+                }
+
+api:
+  #encryption:
+  #  key: $api_encryption_key
+  services:
+
+    - service: upload_tft
+      then:
+        - lambda: |-
+            id(trigger_tft_upload).execute();
+
+    - service: send_command
+      variables:
+        cmd: string
+      then:
+        - lambda: 'id(nxtDisplay).send_command_printf("%s", cmd.c_str());'
+
+    - service: device_available
+      then:
+        - lambda: id(set_backlight)->execute(100);
+
+    - service: device_upgrade
+      then:
+        - lambda: id(set_state)->execute($state_upgrade);
+
+    - service: screen_wakeup
+      then:
+        - lambda: id(set_state)->execute($state_awake);
+
+    - service: screen_sleep
+      then:
+        - lambda: id(set_state)->execute($state_sleep);
+
+# Component - Time - fetches time from Home Assistant and updates the display once a minute and when the display is ready at bootup (and time is available).
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: $device_timezone
+    on_time:
+      - seconds: 0
+        minutes: '/1'
+        #have also seen minutes: '*' - research which is correct
+        then:
+          - if:
+              condition:
+                switch.is_on: device_ready
+              then:
+                - script.execute: update_time
+    on_time_sync:
+        then:
+          - if:
+              condition:
+                switch.is_on: device_ready
+              then:
+                - script.execute: update_time
+   
+select:
+  - platform: template
+    name: ${device_name} Background
+    id: nspanel_background
+    entity_category: config
+    icon: mdi:image
+    optimistic: true
+    options:
+      - Default
+      - Default - Eleanor
+      - Craftroom - 1
+      - Camo - 1
+      - Camo - 2
+      - Camo - 3
+    initial_option: Default
+    #restore_value: true
+    on_value: 
+      then:
+        - lambda: |-
+            ESP_LOGD("SELECT", "OPTION=%s", x.c_str());
+            auto index = id(nspanel_background).active_index();
+            switch (index.value()) {
+              case 0: //'Default'
+                id(gbl_background_index)=1;
+                break;
+              case 1: //'Default - Eleanor'
+                id(gbl_background_index)=179;
+                break;
+              case 2: //'Craftroom - 1':
+                id(gbl_background_index)=178;
+                break;
+              case 3: //'Camo - 1':
+                id(gbl_background_index)=175;
+                break;
+              case 4: //'Camo - 2':
+                id(gbl_background_index)=176;
+                break;
+              case 5: //'Camo - 3':
+                id(gbl_background_index)=177;
+                break;
+            }
+            id(set_background).execute();
+            
+button:
+  - platform: restart
+    name: ${device_name} Restart
+    id: nspanel_test_restart
+    device_class: restart
+    entity_category: diagnostic
+    icon: mdi:restart-alert
+
+  - platform: template
+    name: ${device_name} Upload TFT
+    id: nspanel_test_upload_tft
+    entity_category: config
+    icon: mdi:briefcase-upload-outline
+    on_press:
+      - lambda: 'id(nxtDisplay).upload_tft();'
+
+  - platform: template
+    name: ${device_name} WakeUp
+    id: nspanel_test_wakeup
+    entity_category: diagnostic
+    on_press:
+      - lambda: id(set_state)->execute($state_awake);
+
+binary_sensor:
+
+  # Left button below the display
+  - platform: gpio
+    #name: Left Button
+    id: nspanel_test_button_left
+    pin:
+      number: 14
+      inverted: true
+    on_click:
+      - switch.toggle: relay_1_template
+      - script.execute: trigger_activity
+
+  # Right button below the display
+  - platform: gpio
+    #name: Right Button
+    id: nspanel_test_button_right
+    pin:
+      number: 27
+      inverted: true
+    on_click:
+      - switch.toggle: relay_2_template
+      - script.execute: trigger_activity
+
+sensor:
+  - platform: wifi_signal
+    name: "${device_name} RSSI"
+    id: wifi_rssi
+    update_interval: 60s
+    on_value:
+      then:
+        - script.execute: update_wifi_status
+
+  # Internal temperature sensor, adc value
+  - platform: adc
+    id: ntc_source
+    pin: 38
+    update_interval: 60s
+    attenuation: 11db
+
+  # Internal temperature sensor, adc reading converted to resistance (calculation) 
+  - platform: resistance
+    id: resistance_sensor
+    sensor: ntc_source
+    configuration: DOWNSTREAM
+    resistor: 11.2kOhm
+
+  # Internal temperature sensor, resistance to temperature (calculation)
+  - platform: ntc
+    id: temperature
+    sensor: resistance_sensor
+    calibration:
+      b_constant: 3950
+      reference_temperature: 25°C
+      reference_resistance: 10kOhm
+    name: $device_name Temperature
+    on_value:
+      then:
+        lambda: |-
+          auto f=id(temperature).state*1.800+32;
+          id(nxtDisplay).set_component_text_printf("${page_main_name}.roomTemp","%.0f", f);
+
+  - platform: template
+    id: nspanel_state
+    name: ${device_name} Current State
+    accuracy_decimals: 0    
+    lambda: return id(gbl_state);
+
+  - platform: homeassistant
+    id: homeassistant_connected
+    entity_id: sensor.homeassistant_connected
+    on_value:
+      - switch.template.publish:
+          id: device_ready
+          state: on
+      - lambda: |-
+          ESP_LOGD("HOMEASSISTANT_CONNECTED", "%d", id(gbl_secs));             
+
+  - platform: homeassistant
+    id: alarm_state_icon
+    entity_id: sensor.security_status_ico
+    on_value:
+      then:
+        - lambda: |-
+           id(nxtDisplay).send_command_printf("${page_main_name}.icon_top_01.pic=%i", int(id(alarm_state_icon).state) );
+           id(set_state)->execute($state_awake);
+
+  # Weather Conditions, fetched from HA
+  - platform: homeassistant
+    id: current_condition_icon
+    entity_id: sensor.weatherman_condition_icon
+    on_value:
+      then:
+        - lambda: |-
+           auto curr_weather = int(id(current_condition_icon).state);
+           id(nxtDisplay).send_command_printf("${page_main_name}.weather.pic=%i", curr_weather+4 );
+
+  # Temperature outside, fetched from HA
+  - platform: homeassistant
+    id: current_temperature
+    entity_id: sensor.weatherman_temperature
+    on_value:
+      then:
+        - if:
+            condition:
+              switch.is_on: device_ready
+            then:
+              - lambda: id(nxtDisplay).set_component_text_printf("${page_main_name}.temp", "%.0f", id(current_temperature).state);
+
+  - platform: homeassistant
+    id: forecast_low
+    entity_id: sensor.weatherman_forecast_low
+    on_value:
+      then:
+        - if:
+            condition:
+              switch.is_on: device_ready
+            then:
+              - lambda: id(nxtDisplay).set_component_text_printf("${page_main_name}.temp_low", "%.0f", id(forecast_low).state);
+
+  - platform: homeassistant
+    id: forecast_high
+    entity_id: sensor.weatherman_forecast_high
+    on_value:
+      then:
+        - if:
+            condition:
+              switch.is_on: device_ready
+            then:
+              - lambda: id(nxtDisplay).set_component_text_printf("${page_main_name}.temp_high", "%.0f", id(forecast_high).state);
+
+  - platform: homeassistant
+    id: current_humidity
+    entity_id: sensor.weatherman_relative_humidity
+    on_value:
+      then:
+        - if:
+            condition:
+              switch.is_on: device_ready
+            then:
+              - lambda: id(nxtDisplay).set_component_text_printf("${page_main_name}.humidity", "%.0f %s", id(current_humidity).state,"%");
+
+  - platform: nextion
+    name: ${device_name} Current Page
+    id: nxtDisplay_page
+    component_name: currPage
+    accuracy_decimals: 0    
+    #lambda: return id(gbl_page);
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("PAGE_CHANGE", "currPage(%d)", x);             
+            id(gbl_page)=x;
+          
+  - platform: nextion
+    id: nxtDisplay_pageSwipe
+    component_name: pageSwipe
+    accuracy_decimals: 0    
+    #lambda: return id(gbl_page);
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("pageSwipe", "pageSwipe(%d)", x);
+            id(trigger_pageswipe)->execute(x);  
+
+  - platform: nextion
+    id: nxtDisplay_Activity
+    component_name: activity
+    accuracy_decimals: 0    
+    #lambda: return id(gbl_page);
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("activity", "activity(%d)", x);             
+            id(trigger_activity).execute();
+
+number:
+  - platform: template
+    name: ${device_name} Max Brightness
+    id: display_brightness
+    entity_category: config
+    unit_of_measurement: '%'
+    min_value: 1
+    max_value: 100
+    step: 1
+    restore_value: true
+    optimistic: true
+    set_action:
+      then:
+        - lambda: |-
+            id(set_backlight)->execute(int(x));
+            id(set_state)->execute($state_awake);
+
+  - platform: template
+    name: ${device_name} Min Dim
+    id: display_brightness_dim
+    entity_category: config
+    unit_of_measurement: '%'
+    min_value: 5
+    max_value: 100
+    step: 1
+    restore_value: true
+    optimistic: true
+    set_action:
+      then:
+        - lambda: |-
+            id(gbl_brightness_dim)=int(x);
+
+text_sensor:
+  - platform: version
+    id: version_esphome
+    entity_category: diagnostic
+    name: ${device_name} ESP Version
+
+  - platform: nextion
+    id: tftVersion
+    name: "${device_name} TFT Version"
+    entity_category: diagnostic
+    update_interval: 3600s
+    component_name: tftVersion
+
+  - platform: template
+    id: yamlBuild
+    entity_category: diagnostic
+    name: ${device_name} YAML Version
+    update_interval: 3600s
+    lambda: return {"${device_build}"};    
+
+  - platform: template
+    id: assigned_room
+    entity_category: diagnostic
+    name: ${device_name} Assigned Room
+    update_interval: 3600s
+    lambda: return {"${device_room}"};    
+
+  - platform: homeassistant
+    id: current_condition
+    entity_id: sensor.weatherman_condition
+    on_value:
+      then:
+        - lambda: |-
+           id(nxtDisplay).set_component_text("${page_main_name}.weather_text",id(current_condition).state.c_str());
+
+switch:
+  - platform: template
+    name: ${device_name} Disable AutoDim
+    entity_category: config
+    restore_state: true
+    lambda: |-
+        return !id(gbl_dim_enabled);
+    turn_on_action:
+        - lambda: |-
+            id(trigger_activity).execute();       
+            id(gbl_dim_enabled)=false;
+    turn_off_action:
+        - lambda: |-
+            id(trigger_activity).execute();       
+            id(gbl_dim_enabled)=true;
+
+  - platform: template
+    name: ${device_name} Disable Screensaver
+    entity_category: config
+    restore_state: true
+    lambda: |-
+        return !id(gbl_sleep_enabled);
+    turn_on_action:
+        - lambda: |-
+            id(trigger_activity).execute();       
+            id(gbl_sleep_enabled)=false;
+    turn_off_action:
+        - lambda: |-
+            id(trigger_activity).execute();       
+            id(gbl_sleep_enabled)=true;
+
+  - platform: template
+    id: relay_1_template
+    name: ${device_name} Left Relay
+    lambda: |-
+        return id(relay_1).state;
+    turn_on_action:
+        - lambda: |-
+            ESP_LOGD("RELAY_L-ON", "%d", id(gbl_secs));
+            id(relay_1).turn_on();
+            id(nxtDisplay).set_component_value("${page_main_name}.relay_l", 1);
+            id(set_state)->execute($state_awake);      
+    turn_off_action:
+        - lambda: |-
+            ESP_LOGD("RELAY_L-OFF", "%d", id(gbl_secs));
+            id(relay_1).turn_off();
+            id(nxtDisplay).set_component_value("${page_main_name}.relay_l", 0);
+            id(set_state)->execute($state_awake);      
+
+  - platform: gpio
+    id: relay_1
+    pin:
+      number: 22      
+
+  - platform: template
+    id: relay_2_template
+    name: ${device_name} Right Relay
+    lambda: |-
+        return id(relay_2).state;
+    turn_on_action:
+        - lambda: |-
+            ESP_LOGD("RELAY_R-ON", "%d", id(gbl_secs));
+            id(relay_2).turn_on();
+            id(nxtDisplay).set_component_value("${page_main_name}.relay_r", 1);
+            id(set_state)->execute($state_awake);      
+    turn_off_action:
+        - lambda: |-
+            ESP_LOGD("RELAY_R-OFF", "%d", id(gbl_secs));
+            id(relay_2).turn_off();
+            id(nxtDisplay).set_component_value("${page_main_name}.relay_r", 0);
+            id(set_state)->execute($state_awake);    
+    
+  - platform: gpio
+    id: relay_2
+    pin:
+      number: 19
+
+  # Pin 4 high to power display
+  - platform: gpio
+    #name: Screen Power
+    id: screen_power
+    entity_category: config
+    pin:
+      number: 4
+      inverted: true
+    restore_mode: ALWAYS_ON
+    internal: true
+
+  - platform: template
+    id: device_ready
+    internal: true
+    restore_state: false
+    assumed_state: off
+    optimistic: true

@@ -1,0 +1,7 @@
+Alarm Type|Imperial Threshold|Metric Threshold
+Rain|0.5 inch|12.7 mm
+Snow|1 inch|2.54 cm
+Ice|0.1 inch|0.254 mm
+Sustained Wind|30 mph|48 kph
+Wind Gust|40 mph|64 kph
+Thunderstorm Probability|75%|75%

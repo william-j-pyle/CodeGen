@@ -1,0 +1,15 @@
+component:
+  type: nodemcu
+  name: nodemcu-power-monitor
+
+room: 
+  name: Utility Room
+
+device:
+  name: dryer_power_monitor
+  description: Dryer Power Monitor
+  ip: NAMES_IP
+
+esphome:
+  ota_password: NAMES_OTA
+

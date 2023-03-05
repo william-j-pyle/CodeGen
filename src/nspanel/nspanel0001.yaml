@@ -1,0 +1,9 @@
+room: 
+  name: Office
+
+device:
+  type: nspanel
+  config: home-default
+  name: nspanel0001
+  friendly_name: ${cfg_room_name}
+  description: ${cfg_room_name}

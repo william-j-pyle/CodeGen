@@ -1,0 +1,39 @@
+substitutions:
+  device_build: '$device_build'
+  #Device Config
+  device_name: '$device_name'
+  device_name_lower: '$device_name_lower'
+  device_room: '$device_room'
+  #Secrets - Device Specific  
+  ota_password: '$ota_password'
+  #api_encryption_key: '$api_encryption_key'
+
+  device_brightness_default: '100'
+  device_dim_default: '5'
+  device_timezone: 'US/Central'
+
+  timer_dim_after: '60'
+  timer_dim_enabled: 'true'
+  timer_sleep_after: '120'
+  timer_sleep_enabled: 'true'
+  timer_home_after: '30'
+  timer_home_enabled: 'true'
+
+  #RTTTL
+
+  #Nextion Config
+  nextion_file: 'nspanel'
+  page_main: '1'
+  page_main_name: 'mainPage'
+  page_sleep: '2'
+  page_sleep_name: 'blankPage'
+  page_status: '0'
+  page_status_name: 'statusPage'
+
+  #Nextion States
+  state_none: '0'
+  state_connect: '1'
+  state_awake: '2'
+  state_awake_dim: '3'
+  state_sleep: '8'
+  state_upgrade: '9'

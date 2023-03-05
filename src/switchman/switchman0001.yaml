@@ -1,0 +1,13 @@
+component:
+  type: switchman
+  name: switchman-standard
+
+room: 
+  name: Switchman0001 - Unassigned
+
+device:
+  name: switchman0001
+  description: ${cfg_room_name}
+
+esphome:
+  ota_password: NAMES_OTA

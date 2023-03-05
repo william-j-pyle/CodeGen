@@ -1,0 +1,25 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "CodeGenerator"
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "*.yaml": "yaml",
+            "H:/esphome/**/*.yaml": "esphome"
+        },
+        "files.exclude": {
+            "**/.esphome": true,
+            "*.db": true,
+            "*.db-shm": true,
+            "*.db-wal": true,    
+            "homeassistant.log.*": true,
+            ".backup": true,
+            "**/.backup": true,
+            "*.code-workspace": true
+        },
+        "explorer.excludeGitIgnore": false,
+    }
+}

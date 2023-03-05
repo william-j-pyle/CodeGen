@@ -1,0 +1,27 @@
+component:
+  type: UNSET
+  name: UNSET
+
+room: UNSET
+
+device:
+  name: UNSET
+  description: UNSET
+  # ip - accepts the following
+  #      DHCP - if ip is null or not specified in cfg, this is the default
+  #             ip for device is assigned normally via dhcp
+  #      NAMES_IP - indicates that the IP address is located in names-ip.yaml config file
+  #             This lookup is performed using the device.name
+  #      #.#.#.# - actual ip address to be used, remember to reserve this IP in your gateway so its not assigned out
+  ip: DHCP
+
+esphome:
+  # if not specified, defaults to {component_type}_{device_name}.yaml
+  filename: UNSET
+
+  # If not specified, NAMES_OTA is evaluated, if no match, then DEFAULT is used
+  # 3 valid options are available:
+  #      DEFAULT - will utilize the common DEFAULT ota password from names-ota-password.yaml
+  #      NAMES_OTA - same as default, except using device.name as lookup key
+  #      {*} - Any other value specified will be directly used as the password
+  ota_password: UNSET

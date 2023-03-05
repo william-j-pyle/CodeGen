@@ -1,0 +1,16 @@
+nextion:
+  whatever: set
+  pages:
+    - name: page0
+      id: 0
+    - name: page1
+      id: 1
+  backgrounds:
+    - name: Default2
+      id: 2
+      pic_id: 1
+      filename: bg_default.jpg
+    - name: Default2 - Eleanor
+      id: 3
+      pic_id: 179
+      filename: bg_default_2.jpg

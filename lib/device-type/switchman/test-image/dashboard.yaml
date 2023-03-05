@@ -1,0 +1,156 @@
+theme: tablet
+title: ${device_name,,}
+type: custom:horizontal-layout
+icon: ''
+badges: []
+cards:
+  - type: custom:tabbed-card
+    tabs:
+      - attributes:
+          label: $device_room
+        card:
+          type: picture-elements
+          elements:
+            - type: conditional
+              conditions:
+                - entity: switch.${device_name,,}_right_relay
+                  state: 'off'
+                - entity: light.${device_name,,}_all_red_leds
+                  state: 'off'
+              elements:
+                - type: image
+                  image: local/images/SwitchManM5_Led_Off.png?v=${device_build}
+                  tap_action:
+                    action: null
+                  style:
+                    top: 86%
+                    left: 84%
+                    width: 25%
+                  filter: none
+            - type: conditional
+              conditions:
+                - entity: switch.${device_name,,}_left_relay
+                  state: 'off'
+                - entity: light.${device_name,,}_all_red_leds
+                  state: 'off'
+              elements:
+                - type: image
+                  image: local/images/SwitchManM5_Led_Off.png?v=${device_build}
+                  tap_action:
+                    action: null
+                  style:
+                    top: 86%
+                    left: 16%
+                    width: 25%
+                  filter: none
+            - type: conditional
+              conditions:
+                - entity: light.${device_name,,}_all_red_leds
+                  state: 'on'
+              elements:
+                - type: image
+                  image: local/images/SwitchManM5_Led_On_Red.png?v=${device_build}
+                  tap_action:
+                    action: null
+                  style:
+                    top: 86%
+                    left: 16%
+                    width: 25%
+                  filter: none
+            - type: conditional
+              conditions:
+                - entity: switch.${device_name,,}_left_relay
+                  state: 'on'
+              elements:
+                - type: image
+                  image: local/images/SwitchManM5_Led_On_Red.png?v=${device_build}
+                  tap_action:
+                    action: null
+                  style:
+                    top: 86%
+                    left: 16%
+                    width: 25%
+                  filter: none
+            - type: image
+              entity: switch.${device_name,,}_middle_relay
+              image: local/images/SwitchManM5_Led_Off.png?v=${device_build}
+              tap_action:
+                action: null
+              state_image:
+                'on': local/images/SwitchManM5_Led_On_Red.png?v=${device_build}
+                on-blue: local/images/SwitchManM5_Led_On_Blue.png?v=${device_build}
+                on-red-blue: local/images/SwitchManM5_Led_On_RedBlue.png?v=${device_build}
+              style:
+                top: 86%
+                left: 50%
+                width: 25%
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_right_relay
+              image: local/images/SwitchManM5_Led_Off.png?v=${device_build}
+              tap_action:
+                action: null
+              state_image:
+                'on': local/images/SwitchManM5_Led_On_Red.png?v=${device_build}
+              style:
+                top: 86%
+                left: 84%
+                width: 25%
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_left_relay
+              image: local/images/SwitchManM5_Button.png?v=${device_build}
+              tap_action:
+                action: toggle
+              style:
+                top: 50%
+                left: 16.5%
+                border: 0px solid
+                width: 33%
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_middle_relay
+              image: local/images/SwitchManM5_Button.png?v=${device_build}
+              tap_action:
+                action: toggle
+              style:
+                top: 50%
+                left: 50%
+                border: 0px solid
+                width: 33%
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_right_relay
+              image: local/images/SwitchManM5_Button.png?v=${device_build}
+              tap_action:
+                action: toggle
+              style:
+                top: 50%
+                left: 83%
+                width: 33%
+                border: 0px solid
+              filter: none
+          image: local/images/SwitchManM5.png?v=${device_build}
+      - attributes:
+          label: Settings
+        card:
+          type: entities
+          entities:
+            - entity: sensor.${device_name,,}_rssi
+              secondary_info: entity-id
+            - entity: sensor.${device_name,,}_esp_version
+              secondary_info: entity-id
+            - entity: sensor.${device_name,,}_assigned_room
+              secondary_info: entity-id
+            - entity: switch.${device_name,,}_left_relay
+              secondary_info: entity-id
+            - entity: switch.${device_name,,}_middle_relay
+              secondary_info: entity-id
+            - entity: switch.${device_name,,}_right_relay
+              secondary_info: entity-id
+            - entity: light.${device_name,,}_all_red_leds
+              secondary_info: entity-id
+            - entity: light.${device_name,,}_blue_status_led
+              secondary_info: entity-id
+              name: Status LED (Blue)
+          state_color: true

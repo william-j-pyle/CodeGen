@@ -1,0 +1,199 @@
+theme: tablet
+title: ${device_name,,}
+type: custom:horizontal-layout
+icon: ''
+badges: []
+cards:
+  - type: custom:tabbed-card
+    tabs:
+      - attributes:
+          label: $device_room
+        card:
+          type: picture-elements
+          elements:
+            - type: conditional
+              conditions:
+                - entity: sensor.${device_name,,}_current_state
+                  state: '8.0'
+              elements:
+                - type: state-label
+                  entity: sensor.${device_name,,}_current_state
+                  prefix: 'Sleeping: '
+                  style:
+                    top: 4%
+                    left: 80%
+            - type: conditional
+              conditions:
+                - entity: sensor.${device_name,,}_current_state
+                  state: '2.0'
+              elements:
+                - type: state-label
+                  entity: sensor.${device_name,,}_current_state
+                  prefix: 'Awake: '
+                  style:
+                    top: 4%
+                    left: 80%
+                - type: image
+                  entity: select.${device_name,,}_background
+                  image: local/nspanel/backgrounds/bg_default.jpg?v=2
+                  tap_action:
+                    action: null
+                  state_image:
+                    Default - Eleanor: local/nspanel/backgrounds/bg_default_2.jpg?v=2
+                    Craftroom - 1: local/nspanel/backgrounds/bg_craftroom_1.jpg?v=2
+                    Camo - 1: local/nspanel/backgrounds/bg_camo_1.jpg?v=2
+                    Camo - 2: local/nspanel/backgrounds/bg_camo_2.jpg?v=2
+                    Camo - 3: local/nspanel/backgrounds/bg_camo_3.jpg?v=2
+                  style:
+                    top: 41%
+                    left: 49%
+                    width: 73%
+                  filter: brightness(90%)
+            - type: conditional
+              conditions:
+                - entity: sensor.${device_name,,}_current_state
+                  state: '3.0'
+              elements:
+                - type: state-label
+                  entity: sensor.${device_name,,}_current_state
+                  prefix: 'Awake-Dim: '
+                  style:
+                    top: 4%
+                    left: 80%
+                - type: image
+                  entity: select.${device_name,,}_background
+                  image: local/nspanel/backgrounds/bg_default.jpg?v=2
+                  tap_action:
+                    action: null
+                  state_image:
+                    Default - Eleanor: local/nspanel/backgrounds/bg_default_2.jpg?v=2
+                    Craftroom - 1: local/nspanel/backgrounds/bg_craftroom_1.jpg?v=2
+                    Camo - 1: local/nspanel/backgrounds/bg_camo_1.jpg?v=2
+                    Camo - 2: local/nspanel/backgrounds/bg_camo_2.jpg?v=2
+                    Camo - 3: local/nspanel/backgrounds/bg_camo_3.jpg?v=2
+                  style:
+                    top: 41%
+                    left: 49%
+                    width: 73%
+                  filter: brightness(30%)
+            - type: image
+              entity: switch.${device_name,,}_left_relay
+              tap_action:
+                action: toggle
+              image: local/images/NSPanel_Button.png?v=${device_build}
+              style:
+                top: 90%
+                left: 26%
+                width: 47%
+                border: 0px solid
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_right_relay
+              tap_action:
+                action: toggle
+              image: local/images/NSPanel_Button.png?v=${device_build}
+              style:
+                top: 90%
+                left: 74%
+                width: 47%
+                border: 0px solid
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_left_relay
+              image: local/images/NSPanel_Relay_Indicator_Off.png?v=${device_build}
+              tap_action:
+                action: null
+              state_image:
+                'on': local/images/NSPanel_Relay_Indicator_Blue.png?V=${device_build}
+              style:
+                top: 72%
+                left: 31%
+                width: 33%
+              filter: none
+            - type: image
+              entity: switch.${device_name,,}_right_relay
+              image: local/images/NSPanel_Relay_Indicator_Off.png?v=${device_build}
+              tap_action:
+                action: null
+              state_image:
+                'on': local/images/NSPanel_Relay_Indicator_Blue.png?V=${device_build}
+              style:
+                top: 72%
+                left: 68%
+                width: 33%
+              filter: none
+          image: local/images/NSPanel.png?v=${device_build}
+      - attributes:
+          label: Settings2
+        card:
+          type: vertical-stack
+          cards:
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.${device_name,,}_assigned_room
+                  secondary_info: entity-id
+                  name: Assigned Room
+                - entity: sensor.${device_name,,}_temperature
+                  secondary_info: entity-id
+                  name: Room Temperature
+                - entity: switch.${device_name,,}_left_relay
+                  secondary_info: entity-id
+                  name: Left Switch
+                - entity: switch.${device_name,,}_right_relay
+                  secondary_info: entity-id
+                  name: Right Switch
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: select.${device_name,,}_background
+                  secondary_info: entity-id
+                  name: Nextion Home Background
+                - entity: switch.${device_name,,}_disable_autodim
+                  secondary_info: entity-id
+                  name: Disable AutoDim
+                - entity: switch.${device_name,,}_disable_screensaver
+                  secondary_info: entity-id
+                  name: Disable Sleep
+                - entity: number.${device_name,,}_max_brightness
+                  secondary_info: entity-id
+                  name: Brightness When Awake
+                - entity: number.${device_name,,}_min_dim
+                  secondary_info: entity-id
+                  name: Brightness When Dimmed
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.${device_name,,}_rssi
+                  secondary_info: entity-id
+                  name: RSSI
+                - entity: sensor.${device_name,,}_current_page
+                  secondary_info: entity-id
+                  name: Nextion Page
+                - entity: sensor.${device_name,,}_current_state
+                  secondary_info: entity-id
+                  name: Nextion State
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.${device_name,,}_yaml_version
+                  secondary_info: entity-id
+                  name: YAML Version
+                - entity: sensor.${device_name,,}_esp_version
+                  secondary_info: entity-id
+                  name: ESP Version
+                - entity: sensor.${device_name,,}_tft_version
+                  secondary_info: entity-id
+                  name: TFT Version
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: button.${device_name,,}_wakeup
+                  secondary_info: entity-id
+                  name: Wakeup
+                - entity: button.${device_name,,}_restart
+                  secondary_info: entity-id
+                  name: Restart
+                - entity: button.${device_name,,}_upload_tft
+                  secondary_info: entity-id
+                  name: Upload TFT

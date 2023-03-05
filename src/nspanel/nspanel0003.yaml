@@ -1,0 +1,13 @@
+component:
+  type: nspanel
+  name: nspanel-standard
+
+room: 
+  name: Entryway
+
+device:
+  name: nspanel0003
+  description: ${cfg_room_name}
+
+esphome:
+  ota_password: NAMES_OTA

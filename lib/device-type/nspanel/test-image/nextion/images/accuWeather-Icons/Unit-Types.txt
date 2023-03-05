@@ -1,0 +1,38 @@
+Type|Symbol|Numeric ID
+Feet|ft|0
+Inches|in|1
+Miles|mi|2
+Millimeter|mm|3
+Centimeter|cm|4
+Meters|m|5
+Kilometer|km|6
+Kilometers per hour|km/h|7
+Knots|kts|8
+Miles per hour|mi/h|9
+Meters per second|m/s|10
+HectoPascals|hPa|11
+Inches of mercury|inHg|12
+KiloPascals|kPa|13
+Millibars|mb|14
+Millimeters of mercury|mmHg|15
+Pounds per square inch|lbs/in2|16
+Celsius|C|17
+Fahrenheit|F|18
+Kelvin|K|19
+Percent|%|20
+Float||21
+Integer||22
+Body/duration magnitude|Mb|23
+Energy magnitude|Me|24
+Local magnitude|Ml|25
+Moment magnitude|Mi|26
+Nuttli surface wave magnitude|MbLg|27
+Moment magnitude|Mw|28
+Surface wave magnitude|Ms|29
+Teleseismic moment magnitude|Mt|30
+Micrograms per cubic meter of air|µg/m³|31
+Watt hours per square meter|Wh/m2|32
+Watts per square meter|W/m2|33
+BTU per hour per square foot|BTU/hr/ft2|34
+Cubic meter per cubic meter|m3/m3|35
+Cubic foot per cubic foot|ft3/ft3|36

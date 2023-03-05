@@ -1,0 +1,13 @@
+component:
+  type: nspanel
+  name: nspanel-standard
+
+room: 
+  name: NSPanel0006 - Unassigned
+
+device:
+  name: nspanel0006
+  description: ${cfg_room_name}
+
+esphome:
+  ota_password: NAMES_OTA

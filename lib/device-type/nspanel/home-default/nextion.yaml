@@ -1,0 +1,119 @@
+nextion:
+  hmi: 
+    filename: nspanel-standard.hmi
+    editor_version: 1.65.1
+  tft: 
+    filename: nspanel-standard.tft
+    ota:
+      url: http://192.168.86.47:8123/local/nspanel/
+      path: //homeassistant/config/www/nspanel/
+
+  events:
+    - name: autodim
+      enabled: true
+      fire_after: 60
+    - name: autohome
+      enabled: true
+      fire_after: 30
+    - name: sleep
+      enabled: true
+      fire_after: 120
+
+  screen:
+    brightness:
+      default: 100
+      min: 10
+      max: 100
+    dim:
+      default: 5
+      min: 5
+      max: 50
+
+  state:
+    - name: initial
+      id: -1
+    - name: connect
+      id: 1
+      description: Connecting
+    - name: awake
+      id: 1
+      description: Awake
+    - name: awake_dim
+      id: 3
+      description: Awake-Dim
+    - name: boot
+      id: 7
+      description: Booting
+    - name: sleep
+      id: 8
+      description: Sleeping
+    - name: upgrade
+      id: 9
+      description: Upgrading
+
+  pages:
+    - type: status
+      name: statusPage
+      id: 0
+    - type: main
+      name: mainPage
+      id: 1
+      swipe:
+        lr: 6
+        rl: 4
+        tb: 3
+    - type: screensaver
+      name: blankPage
+      id: 2
+    - type: settings
+      name: settingsPage
+      id: 3
+      swipe:
+        bt: PREV_PAGE
+    - type: security
+      name: securityPage
+      id: 4
+      swipe:
+        lr: 1
+        rl: 5
+        tb: 3
+    - type: thermostat
+      name: thermostatPage
+      id: 5
+      swipe:
+        lr: 4
+        rl: 6
+        tb: 3
+    - type: media
+      name: mediaPage
+      id: 6
+      swipe:
+        lr: 5
+        rl: 1
+        tb: 3
+
+  backgrounds:
+    - name: Default
+      id: 0
+      pic_id: 1
+      filename: bg_default.jpg
+    - name: Default - Eleanor
+      id: 1
+      pic_id: 179
+      filename: bg_default_2.jpg
+    - name: Craftroom - 1
+      id: 2
+      pic_id: 178
+      filename: bg_craftroom_1.jpg
+    - name: Camo - 1
+      id: 3
+      pic_id: 175
+      filename: bg_camo_1.jpg
+    - name: Camo - 2
+      id: 4
+      pic_id: 176
+      filename: bg_camo_2.jpg
+    - name: Camo - 3
+      id: 5
+      pic_id: 177
+      filename: bg_camo_3.jpg
